@@ -184,6 +184,10 @@ func main() {
 	r := mux.NewRouter()
 
 	// define HTTP routes using the router
+	r.HandleFunc("/user", createUserHandler).Methods("POST")
+	r.HandleFunc("/user/{id}", getUserHandler).Methods("GET")
+	r.HandleFunc("/user/{id}", updateUserHandler).Methods("PUT")
+	r.HandleFunc("/user/{id}", deleteUserHandler).Methods("DELETE")
 
 	log.Println("Server listening on :8090")
 	log.Fatal(http.ListenAndServe(":8090", r))
