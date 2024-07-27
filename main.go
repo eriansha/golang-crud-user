@@ -185,10 +185,6 @@ func deleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, "User deleted successfully")
-
-	// Convert the user object to JSON and send it in the response
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(user)
 }
 
 func main() {
