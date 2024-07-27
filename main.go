@@ -57,6 +57,7 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer db.Close()
 
+	// Parse JSON data from the request body
 	var user User
 	json.NewDecoder(r.Body).Decode(&user)
 
