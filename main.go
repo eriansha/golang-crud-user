@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -35,6 +36,19 @@ func createUser(db *sql.DB, name, email string) error {
 	return nil
 }
 
+func getUser(db *sql.DB, id int) (*User, error) {
+	query := "SELECT * FROM users WHERE id = ?"
+	row := db.QueryRow(query, id)
+
+	user := &User{}
+	err := row.Scan(&user.Id, &user.Name, &user.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
 	if err != nil {
@@ -54,6 +68,33 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprint(w, "User created successfully")
+}
+
+func getUserHandler(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	defer db.Close()
+
+	// Get the 'Id' parameter from the URL
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+
+	// Convert 'id' to an integer
+	userId, err := strconv.Atoi(idStr)
+
+	// Call the GetUser function to fetch the user data from the database
+	user, err := GetUser(db, userId)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	// Convert the user object to JSON and send it in the response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
 }
 
 func main() {
