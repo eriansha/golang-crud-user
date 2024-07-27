@@ -79,7 +79,7 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprint(w, "User created successfully")
+	fmt.Fprintln(w, "User created successfully")
 }
 
 func getUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -127,13 +127,14 @@ func updateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
 	err = json.NewDecoder(r.Body).Decode(&user)
 
+	// Call the GetUser function to fetch the user data from the database
 	UpdateUser(db, userId, user.Name, user.Email)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
-	fmt.Fprint(w, "User update successfully")
+	fmt.Fprintln(w, "User update successfully")
 }
 
 func main() {
