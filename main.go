@@ -172,14 +172,21 @@ func deleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := vars["id"]
 
 	// Convert 'id' to an integer
-	userID, err := strconv.Atoi(idStr)
-	if err != nil {
+	userId, errParse := strconv.Atoi(idStr)
+	if errParse != nil {
 		http.Error(w, "Invalid 'id' parameter", http.StatusBadRequest)
 		return
 	}
 
-	user := DeleteUser(db, userID)
-	if err != nil {
+	// Call the getUser function to fetch the user data from the database
+	_, errGetUser := getUser(db, userId)
+	if errGetUser != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	errDelete := DeleteUser(db, userId)
+	if errDelete != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
