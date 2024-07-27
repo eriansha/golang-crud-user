@@ -25,6 +25,17 @@ type User struct {
 	Email string
 }
 
+func updateUser(db *sql.DB, id int, name, email string) error {
+	query := "UPDATE users SET name = ?, email = ? where id = ?"
+
+	_, err := db.Exec(query, name, email, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func createUser(db *sql.DB, name, email string) error {
 	query := "INSERT INTO users(name, email) values (?, ?)"
 
@@ -96,6 +107,33 @@ func getUserHandler(w http.ResponseWriter, r *http.Request) {
 	// Convert the user object to JSON and send it in the response
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
+}
+
+func updateUserHandler(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	defer db.Close()
+
+	// Get the 'id' parameter from the URL
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+
+	// Convert 'id' to an integer
+	userId, err := strconv.Atoi(idStr)
+
+	var user User
+	err = json.NewDecoder(r.Body).Decode(&user)
+
+	UpdateUser(db, userId, user.Name, user.Email)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	fmt.Fprint(w, "User update successfully")
 }
 
 func main() {
