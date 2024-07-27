@@ -83,7 +83,7 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
 	json.NewDecoder(r.Body).Decode(&user)
 
-	CreateUser(db, user.Name, user.Email)
+	createUser(db, user.Name, user.Email)
 	if err != nil {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
 		return
@@ -108,8 +108,8 @@ func getUserHandler(w http.ResponseWriter, r *http.Request) {
 	// Convert 'id' to an integer
 	userId, err := strconv.Atoi(idStr)
 
-	// Call the GetUser function to fetch the user data from the database
-	user, err := GetUser(db, userId)
+	// Call the getUser function to fetch the user data from the database
+	user, err := getUser(db, userId)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
@@ -138,8 +138,8 @@ func updateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
 	err = json.NewDecoder(r.Body).Decode(&user)
 
-	// Call the GetUser function to fetch the user data from the database
-	UpdateUser(db, userId, user.Name, user.Email)
+	// Call the getUser function to fetch the user data from the database
+	updateUser(db, userId, user.Name, user.Email)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
