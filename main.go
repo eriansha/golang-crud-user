@@ -133,15 +133,26 @@ func updateUserHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := vars["id"]
 
 	// Convert 'id' to an integer
-	userId, err := strconv.Atoi(idStr)
+	userId, errParse := strconv.Atoi(idStr)
+	if errParse != nil {
+		http.Error(w, "Invalid 'id' parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Call the getUser function to fetch the user data from the database
+	_, errGetUser := getUser(db, userId)
+	if errGetUser != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
 
 	var user User
 	err = json.NewDecoder(r.Body).Decode(&user)
 
 	// Call the getUser function to fetch the user data from the database
-	updateUser(db, userId, user.Name, user.Email)
-	if err != nil {
-		http.Error(w, "User not found", http.StatusNotFound)
+	errUpdate := updateUser(db, userId, user.Name, user.Email)
+	if errUpdate != nil {
+		http.Error(w, "Failed to update User", http.StatusBadRequest)
 		return
 	}
 
