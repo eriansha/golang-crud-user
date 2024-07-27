@@ -18,8 +18,17 @@ const (
 	dbName = "gocrud_app"
 )
 
+type User struct {
+	Id    int
+	Name  string
+	Email string
+}
+
 func main() {
 	r := mux.NewRouter()
 
 	// define HTTP routes using the router
+
+	log.Println("Server listening on :8090")
+	log.Fatal(http.ListenAndServe(":8090", r))
 }
