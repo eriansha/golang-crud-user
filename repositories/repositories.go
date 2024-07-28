@@ -5,6 +5,7 @@ import (
 	models "golangcrud/models/user"
 )
 
+// Delete single user through database by given ID
 func DeleteUser(db *sql.DB, id int) error {
 	query := "DELETE FROM users WHERE id = ?"
 	_, err := db.Exec(query, id)
@@ -16,6 +17,7 @@ func DeleteUser(db *sql.DB, id int) error {
 	return nil
 }
 
+// Update user data through database
 func UpdateUser(db *sql.DB, id int, name, email string) error {
 	query := "UPDATE users SET name = ?, email = ? where id = ?"
 
@@ -27,6 +29,7 @@ func UpdateUser(db *sql.DB, id int, name, email string) error {
 	return nil
 }
 
+// Create new user to database
 func CreateUser(db *sql.DB, name, email string) error {
 	query := "INSERT INTO users(name, email) values (?, ?)"
 
@@ -38,6 +41,7 @@ func CreateUser(db *sql.DB, name, email string) error {
 	return nil
 }
 
+// Get single user data from database
 func GetUser(db *sql.DB, id int) (*models.User, error) {
 	query := "SELECT * FROM users WHERE id = ?"
 	row := db.QueryRow(query, id)

@@ -19,6 +19,7 @@ const (
 	dbName   = "gocrud_app"
 )
 
+// Handler to create new user
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
 	if err != nil {
@@ -41,6 +42,7 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "User created successfully")
 }
 
+// Handler to get a user data
 func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
 	if err != nil {
@@ -68,6 +70,7 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
+// Handler to update user data such as name and email
 func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
 	if err != nil {
@@ -107,6 +110,7 @@ func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "User update successfully")
 }
 
+// Handler to delete user
 func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
 	if err != nil {
