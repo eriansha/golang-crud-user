@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	models "golangcrud/models/user"
+	"golangcrud/repositories"
 	"log"
 	"net/http"
 	"strconv"
@@ -20,52 +21,6 @@ const (
 	dbName   = "gocrud_app"
 )
 
-func DeleteUser(db *sql.DB, id int) error {
-	query := "DELETE FROM users WHERE id = ?"
-	_, err := db.Exec(query, id)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func updateUser(db *sql.DB, id int, name, email string) error {
-	query := "UPDATE users SET name = ?, email = ? where id = ?"
-
-	_, err := db.Exec(query, name, email, id)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func createUser(db *sql.DB, name, email string) error {
-	query := "INSERT INTO users(name, email) values (?, ?)"
-
-	_, err := db.Exec(query, name, email)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getUser(db *sql.DB, id int) (*models.User, error) {
-	query := "SELECT * FROM users WHERE id = ?"
-	row := db.QueryRow(query, id)
-
-	user := &models.User{}
-	err := row.Scan(&user.Id, &user.Name, &user.Email)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
-
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
 	if err != nil {
@@ -78,7 +33,7 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	json.NewDecoder(r.Body).Decode(&user)
 
-	createUser(db, user.Name, user.Email)
+	repositories.CreateUser(db, user.Name, user.Email)
 	if err != nil {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
 		return
@@ -104,7 +59,7 @@ func getUserHandler(w http.ResponseWriter, r *http.Request) {
 	userId, err := strconv.Atoi(idStr)
 
 	// Call the getUser function to fetch the user data from the database
-	user, err := getUser(db, userId)
+	user, err := repositories.GetUser(db, userId)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
@@ -135,7 +90,7 @@ func updateUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call the getUser function to fetch the user data from the database
-	_, errGetUser := getUser(db, userId)
+	_, errGetUser := repositories.GetUser(db, userId)
 	if errGetUser != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
@@ -145,7 +100,7 @@ func updateUserHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(r.Body).Decode(&user)
 
 	// Call the getUser function to fetch the user data from the database
-	errUpdate := updateUser(db, userId, user.Name, user.Email)
+	errUpdate := repositories.UpdateUser(db, userId, user.Name, user.Email)
 	if errUpdate != nil {
 		http.Error(w, "Failed to update models.User", http.StatusBadRequest)
 		return
@@ -174,13 +129,13 @@ func deleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call the getUser function to fetch the user data from the database
-	_, errGetUser := getUser(db, userId)
+	_, errGetUser := repositories.GetUser(db, userId)
 	if errGetUser != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
-	errDelete := DeleteUser(db, userId)
+	errDelete := repositories.DeleteUser(db, userId)
 	if errDelete != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
