@@ -1,4 +1,4 @@
-module github.com/eriansha/golang-crud-user
+module golangcrud
 
 go 1.22.3
 

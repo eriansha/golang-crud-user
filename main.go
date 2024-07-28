@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	models "golangcrud/models/user"
 	"log"
 	"net/http"
 	"strconv"
@@ -18,12 +19,6 @@ const (
 	dbPass   = "root"
 	dbName   = "gocrud_app"
 )
-
-type User struct {
-	Id    int
-	Name  string
-	Email string
-}
 
 func DeleteUser(db *sql.DB, id int) error {
 	query := "DELETE FROM users WHERE id = ?"
@@ -58,11 +53,11 @@ func createUser(db *sql.DB, name, email string) error {
 	return nil
 }
 
-func getUser(db *sql.DB, id int) (*User, error) {
+func getUser(db *sql.DB, id int) (*models.User, error) {
 	query := "SELECT * FROM users WHERE id = ?"
 	row := db.QueryRow(query, id)
 
-	user := &User{}
+	user := &models.User{}
 	err := row.Scan(&user.Id, &user.Name, &user.Email)
 	if err != nil {
 		return nil, err
@@ -80,7 +75,7 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	// Parse JSON data from the request body
-	var user User
+	var user models.User
 	json.NewDecoder(r.Body).Decode(&user)
 
 	createUser(db, user.Name, user.Email)
@@ -146,13 +141,13 @@ func updateUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user User
+	var user models.User
 	err = json.NewDecoder(r.Body).Decode(&user)
 
 	// Call the getUser function to fetch the user data from the database
 	errUpdate := updateUser(db, userId, user.Name, user.Email)
 	if errUpdate != nil {
-		http.Error(w, "Failed to update User", http.StatusBadRequest)
+		http.Error(w, "Failed to update models.User", http.StatusBadRequest)
 		return
 	}
 
